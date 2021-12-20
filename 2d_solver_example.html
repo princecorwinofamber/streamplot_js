@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<head>
+	<meta charset="UTF-8">
+	<title>Odex wrapper test</title>
+	<script src="./odex_wrapper.js"></script>
+</head>
+<body>
+	<script type="text/javascript">
+		function f(t, x) {
+			return [
+				x[1],
+				-x[0]
+			];
+		}
+		var solver = null;
+		setTimeout(function() {
+			solver = new odex.Solver(2);
+		}, 1000);
+	</script>
+	<p style="transform: scale(4); transform-origin: left; margin-top: 75px;">
+		<math>
+			<mfrac>
+				<mi> &part; x </mi>
+				<mi> &part; t </mi>
+			</mfrac>
+			<mo>=</mo>
+			<mi>x</mi>
+		</math>
+		<br/>
+		<math>
+			<mfrac>
+				<mi> &part; y </mi>
+				<mi> &part; t </mi>
+			</mfrac>
+			<mo>=</mo>
+			<mi>y</mi>
+		</math>
+	</p>
+	<br/>
+	<br/>
+	<br/>
+	<br/>
+	<input type="number" id="zero_x">
+	<label for="zero_x">Starting x value</label>
+	<br/>
+	<input type="number" id="zero_y">
+	<label for="zero_y">Starting y value</label>
+	<br/>
+	<input type="number" id="final_time">
+	<label for="final_time">Final time</label>
+	<br/>
+	<button onclick="var res = solver.solve(f, 0, [parseFloat(document.getElementById('zero_x').value), parseFloat(document.getElementById('zero_y').value)], parseFloat(document.getElementById('final_time').value)); document.getElementById('answer').textContent=res.y;">Calculate</button>
+	<br/>
+	Answer: 
+	<p id="answer"></p>
+</body>
