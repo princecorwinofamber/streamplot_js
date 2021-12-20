@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<head>
+	<meta charset="UTF-8">
+	<title>Odex wrapper test</title>
+	<script src="./odex_wrapper.js"></script>
+</head>
+<body>
+	<script type="text/javascript">
+		function onLoad() {
+			//console.log(this.responseText);
+			//eval(this.responseText);
+		}
+		var oReq = new XMLHttpRequest();
+		oReq.addEventListener("load", onLoad);
+		oReq.open("GET", "https://raw.githubusercontent.com/littleredcomputer/odex-js/master/src/odex.js");
+		oReq.send();
+	</script>
+	<script type="text/javascript">
+		function f(t, x) {
+			return x;
+		}
+	</script>
+	<p style="transform: scale(4); transform-origin: left; margin-top: 50px;">
+		<math>
+			<mfrac>
+				<mi> &part; x </mi>
+				<mi> &part; t </mi>
+			</mfrac>
+			<mo>=</mo>
+			<mi>x</mi>
+		</math>
+	</p>
+	<br/>
+	<input type="number" id="zero_x">
+	<label for="zero_x">Starting x value</label>
+	<br/>
+	<input type="number" id="final_time">
+	<label for="final_time">Final time</label>
+	<br/>
+	<button onclick="var solver = new odex.Solver(1); var res = solver.solve(f, 0, [parseFloat(document.getElementById('zero_x').value)], parseFloat(document.getElementById('final_time').value)); document.getElementById('answer').textContent=res.y[0];">Calculate</button>
+	<br/>
+	Answer: 
+	<p id="answer"></p>
+</body>
