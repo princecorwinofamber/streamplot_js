@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <title>Plotting Test</title>
+    <script src="./plotting_canvas.js"></script>
+</head>
+<body>
+    <script type="text/javascript">
+        function plot(cv) {
+            cv.beginPath();
+            cv.moveTo(0, 0);
+            cv.lineTo(1, 1);
+            cv.lineTo(2, 4);
+            cv.closePath();
+            cv.fill();
+            //cv.addDot(0, 0);
+            //cv.addDot(1, 1);
+            //cv.addDot(2, 4);
+        }
+    </script>
+    <button onclick="var cv = new PlottingCanvas('canvas', 0, -3, 4, 4.5); plot(cv)">Calculate</button>
+    <br/>
+    Answer: 
+    <p id="answer"></p>
+    <canvas id="canvas" width="800" height="800" style="background-color:#EBEBEB;"></canvas>
+</body>
