@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <title>StreamPlot Test</title>
+</head>
+<body>
+    <script type="text/javascript">
+
+        function circle(x, y) {
+            // x = x*0.005;
+            // y = y*0.005;
+            //console.log(0.5 * x + y - 0.3 * x * (x*x + y*y));
+            // return [
+            //     0.5 * x + y - 0.3 * x * (x*x + y*y),
+            //     -x + 0.5 * y - 0.3 * y * (x*x + y*y)
+            // ];
+            return [x - x*y, x*y - y];
+            //return [-y, x];
+        }
+
+        function denormalize(x, startx, endx, width) {
+            return (x-startx)*width/(endx-startx);
+        }
+
+        function drawArrow(ctx, curx, cury, dx, dy) {
+            ctx.beginPath();
+            ctx.moveTo(curx, cury);
+            ctx.lineTo(curx-dx*0.5-dy*0.1, cury-dy*0.5+dx*0.1);
+            ctx.lineTo(curx-dx*0.5+dy*0.1, cury-dy*0.5-dx*0.1);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function streamplot(f=circle, color="RoyalBlue", startx=-3, starty=-1.7, endx=3, endy=1.7, stepx=0.5, stepy=0.5, iter_steps=50,arrowSize=30, lr=0.05) {
+            var canvas = document.getElementById("canvas");
+            var ctx = canvas.getContext("2d");
+
+            ctx.fillStyle = color;
+            ctx.strokeStyle = color;
+            for (var x = startx; x < endx; x += stepx) {
+                for (var y = starty; y < endy; y += stepy) {
+                    ctx.beginPath();
+                    curx = x;
+                    cury = y;
+                    ctx.moveTo(denormalize(curx, startx, endx, canvas.width), canvas.height-denormalize(cury, starty, endy, canvas.height));
+                    for (var i = 0; i < iter_steps; i++) {
+                        aaa = f(curx, cury);
+                        curx += aaa[0]*lr;
+                        cury += aaa[1]*lr;
+                        ctx.lineTo(denormalize(curx, startx, endx, canvas.width), canvas.height-denormalize(cury, starty, endy, canvas.height));
+                    }
+                    ctx.stroke();
+                    var dx = aaa[0]*lr;
+                    var dy = aaa[1]*lr;
+                    var l = Math.sqrt(dx*dx + dy*dy);
+                    dx = arrowSize*dx/l;
+                    dy = arrowSize*dy/l;
+                    drawArrow(ctx, denormalize(curx, startx, endx, canvas.width), canvas.height-denormalize(cury, starty, endy, canvas.height), dx, -dy);
+                }
+            }
+        }
+    </script>
+    <button onclick="streamplot()">Calculate</button>
+    <br/>
+    Answer: 
+    <p id="answer"></p>
+    <canvas id="canvas" width="1920" height="1080"></canvas>
+</body>
