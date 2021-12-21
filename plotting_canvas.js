@@ -18,6 +18,12 @@ var PlottingCanvas = function(canvas_id, min_x, min_y, max_x, max_y) {
 			y: this._height / 2 - (y - this._y_shift) * this._y_scale
 		};
 	};
+	this._vector_transform = function(x, y) {
+		return {
+			x: x * this._x_scale,
+			y: y * this._y_scale
+		};
+	};
 	this.set_color = function(color) {
 		this._ctx.fillStyle = color;
 		this._ctx.strokeStyle = color;
@@ -31,22 +37,19 @@ var PlottingCanvas = function(canvas_id, min_x, min_y, max_x, max_y) {
 	this.fill = function() {
 		this._ctx.fill();
 	};
+	this.stroke = function() {
+		this._ctx.stroke();
+	}
 	this.moveTo = function(x, y) {
 		let t = this._transform(x, y);
-		console.log(t.x);
-		console.log(t.y);
 		this._ctx.moveTo(t.x, t.y);
 	};
 	this.lineTo = function(x, y) {
 		let t = this._transform(x, y);
-		console.log(t.x);
-		console.log(t.y);
 		this._ctx.lineTo(t.x, t.y);
 	};
 	this.addDot = function(x, y) {
 		let t = this._transform(x, y);
-		console.log(t.x);
-		console.log(t.y);
 		this._ctx.fillRect(t.x, t.y, 20, 20)
-	}
+	};
 };
