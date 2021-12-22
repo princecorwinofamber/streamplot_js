@@ -52,6 +52,9 @@ var PlottingCanvas = function(canvas_id, min_x, min_y, max_x, max_y) {
 		let t = this._transform(x, y);
 		this._ctx.fillRect(t.x, t.y, 20, 20)
 	};
+	this.clear = function() {
+		this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+	}
 };
 
 var meshgrid = function(x_arr, y_arr) {
