@@ -53,3 +53,27 @@ var PlottingCanvas = function(canvas_id, min_x, min_y, max_x, max_y) {
 		this._ctx.fillRect(t.x, t.y, 20, 20)
 	};
 };
+
+var meshgrid = function(x_arr, y_arr) {
+	var x_len = x_arr.length;
+	var y_len = y_arr.length;
+	X = Array(y_len).fill([...x_arr]);
+	Y = Array(y_len);
+	for (let i = 0; i < y_len; i++) {
+		Y[i] = Array(x_len);
+		Y[i].fill(y_arr[i]);
+	}
+	return [X, Y];
+};
+
+var linspace = function(start, stop, num) {
+	var step = (stop - start) / (num - 1);
+	var lin = Array(num);
+	var cur = start;
+	lin[0] = cur;
+	for (let i = 1; i < num; i++) {
+		cur += step;
+		lin[i] = cur;
+	}
+	return lin;
+};
