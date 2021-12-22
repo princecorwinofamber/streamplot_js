@@ -2,6 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <title>StreamPlot Test</title>
+    <script src="./plotting_canvas.js"></script>
 </head>
 <body>
     <script type="text/javascript">
@@ -31,23 +32,21 @@
             ctx.fill();
         }
 
-        function streamplot(f=circle, color="RoyalBlue", startx=-3, starty=-1.7, endx=3, endy=1.7, stepx=0.5, stepy=0.5, iter_steps=50,arrowSize=30, lr=0.05) {
-            var canvas = document.getElementById("canvas");
-            var ctx = canvas.getContext("2d");
+        function streamplot(canvasName="canvas", f=circle, color="RoyalBlue", startx=-3, starty=-1.7, endx=3, endy=1.7, stepx=0.5, stepy=0.5, iter_steps=50, arrowSize=0.1, lr=0.05) {
+            var ctx = new PlottingCanvas(canvasName, startx, starty, endx, endy);
 
-            ctx.fillStyle = color;
-            ctx.strokeStyle = color;
+            ctx.set_color(color);
             for (var x = startx; x < endx; x += stepx) {
                 for (var y = starty; y < endy; y += stepy) {
                     ctx.beginPath();
                     curx = x;
                     cury = y;
-                    ctx.moveTo(denormalize(curx, startx, endx, canvas.width), canvas.height-denormalize(cury, starty, endy, canvas.height));
+                    ctx.moveTo(curx, cury);
                     for (var i = 0; i < iter_steps; i++) {
                         aaa = f(curx, cury);
                         curx += aaa[0]*lr;
                         cury += aaa[1]*lr;
-                        ctx.lineTo(denormalize(curx, startx, endx, canvas.width), canvas.height-denormalize(cury, starty, endy, canvas.height));
+                        ctx.lineTo(curx, cury);
                     }
                     ctx.stroke();
                     var dx = aaa[0]*lr;
@@ -55,7 +54,7 @@
                     var l = Math.sqrt(dx*dx + dy*dy);
                     dx = arrowSize*dx/l;
                     dy = arrowSize*dy/l;
-                    drawArrow(ctx, denormalize(curx, startx, endx, canvas.width), canvas.height-denormalize(cury, starty, endy, canvas.height), dx, -dy);
+                    drawArrow(ctx, curx, cury, dx, dy);
                 }
             }
         }
