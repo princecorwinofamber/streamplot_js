@@ -56,8 +56,8 @@ var PlottingCanvas = function(canvas_id, min_x, min_y, max_x, max_y) {
 		this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
 	}
 
-	this.drawArrow = function(ctx, curx, cury, dx, dy) {
-        ctx.beginPath();
+	this.drawArrow = function(curx, cury, dx, dy) {
+        this._ctx.beginPath();
         let t = this._transform(curx, cury);
         curx = t.x;
         cury = t.y;
