@@ -24,19 +24,6 @@
             //return [-y, x];
         }
 
-        function denormalize(x, startx, endx, width) {
-            return (x-startx)*width/(endx-startx);
-        }
-
-        function drawArrow(ctx, curx, cury, dx, dy) {
-            ctx.beginPath();
-            ctx.moveTo(curx, cury);
-            ctx.lineTo(curx-dx*0.5-dy*0.1, cury-dy*0.5+dx*0.1);
-            ctx.lineTo(curx-dx*0.5+dy*0.1, cury-dy*0.5-dx*0.1);
-            ctx.closePath();
-            ctx.fill();
-        }
-
         function streamplot(startx=-3, starty=-1.7, endx=3, endy=1.7, stepx=0.5, stepy=0.5, canvasName="canvas", f=circle, color="RoyalBlue", iter_steps=1000, arrowSize=30, lr=0.001) {
             var ctx = new PlottingCanvas(canvasName, startx, starty, endx, endy);
             ctx.clear();
