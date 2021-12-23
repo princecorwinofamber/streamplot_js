@@ -41,8 +41,8 @@
             var ctx = new PlottingCanvas(canvasName, startx, starty, endx, endy);
             ctx.clear();
             ctx.set_color(color);
-            for (var x = startx; x < endx; x += stepx) {
-                for (var y = starty; y < endy; y += stepy) {
+            for (var x = startx-startx%stepx; x < endx; x += stepx) {
+                for (var y = starty-starty%stepy; y < endy; y += stepy) {
                     ctx.beginPath();
                     curx = x;
                     cury = y;
