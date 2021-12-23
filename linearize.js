@@ -49,4 +49,10 @@ function ODESystem2d(dot_x, dot_y) {
     this.right_part = function(x, y) {
         return [this._f_comp(x, y), this._g_comp(x, y)];
     };
+
+    this.equilibrium_points = function() {
+        return []; // the function is disabled because nerdamer.solveEquations gives strange results
+        //nerdamer.set('SOLUTIONS_AS_OBJECT', true);
+        //return nerdamer.solveEquations([this._f, this._g]);
+    };
 }
