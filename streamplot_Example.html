@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <title>StreamPlot Test</title>
+    <script src="./plotting_canvas.js"></script>
+</head>
+<body>
+    <button onclick="streamplot()">Calculate</button>
+    <br/>
+    Answer: 
+    <p id="answer"></p>
+    <canvas id="canvas" width="1920" height="1080"></canvas>
+    <script type="text/javascript">
+
+        function circle(x, y) {
+            // x = x*0.005;
+            // y = y*0.005;
+            //console.log(0.5 * x + y - 0.3 * x * (x*x + y*y));
+            // return [
+            //     0.5 * x + y - 0.3 * x * (x*x + y*y),
+            //     -x + 0.5 * y - 0.3 * y * (x*x + y*y)
+            // ];
+            return [x - x*y, x*y - y];
+            //return [-y, x];
+        }
+
+        function denormalize(x, startx, endx, width) {
+            return (x-startx)*width/(endx-startx);
+        }
+
+        function drawArrow(ctx, curx, cury, dx, dy) {
+            ctx.beginPath();
+            ctx.moveTo(curx, cury);
+            ctx.lineTo(curx-dx*0.5-dy*0.1, cury-dy*0.5+dx*0.1);
+            ctx.lineTo(curx-dx*0.5+dy*0.1, cury-dy*0.5-dx*0.1);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function streamplot(startx=-3, starty=-1.7, endx=3, endy=1.7, stepx=0.5, stepy=0.5, canvasName="canvas", f=circle, color="RoyalBlue", iter_steps=1000, arrowSize=30, lr=0.001) {
+            var ctx = new PlottingCanvas(canvasName, startx, starty, endx, endy);
+            ctx.clear();
+            ctx.set_color(color);
+            for (var x = startx-startx%stepx-stepx; x < endx+stepx; x += stepx) {
+                for (var y = starty-starty%stepy-stepy; y < endy+stepy; y += stepy) {
+                    ctx.beginPath();
+                    curx = x;
+                    cury = y;
+                    ctx.moveTo(curx, cury);
+                    for (var i = 0; i < iter_steps; i++) {
+                        aaa = f(curx, cury);
+                        curx += aaa[0]*lr;
+                        cury += aaa[1]*lr;
+                        ctx.lineTo(curx, cury);
+                    }
+                    ctx.stroke();
+                    var dx = aaa[0]*lr;
+                    var dy = aaa[1]*lr;
+                    var l = Math.sqrt(dx*dx + dy*dy);
+                    dx = arrowSize*dx/l;
+                    dy = arrowSize*dy/l;
+                    ctx.drawArrow(ctx, curx, cury, dx, -dy);
+                }
+            }
+        }
+
+        var startx=-3, starty=-1.7, endx=3, endy=1.7, mx=0, my=0, redraw=false;
+        const canvas = document.getElementById("canvas");
+        canvas.addEventListener('mousedown', e => {
+            mx = e.offsetX;
+            my = e.offsetY;
+            redraw = true;
+        });
+
+        canvas.addEventListener('mousemove', e => {
+            var dx = e.offsetX-mx;
+            var dy = e.offsetY-my;
+            if (redraw === true) {
+                dx = (endx-startx)*dx/canvas.width;
+                dy = (endy-starty)*dy/canvas.height;
+                startx -= dx;
+                endx -= dx;
+                starty += dy;
+                endy += dy;
+                streamplot(startx, starty, endx, endy, (endx-startx)/10, (endx-startx)/10);
+                mx = e.offsetX;
+                my = e.offsetY;
+            }
+        });
+
+        window.addEventListener('mouseup', e => {
+            redraw = false;
+        });
+
+        canvas.addEventListener('wheel', e => {
+            var width = endx - startx;
+            var height = endy - starty;
+            var ratio = height/width;
+            var scale = width/canvas.width;
+            scale *= 1+e.deltaY*0.0005;
+            width = canvas.width*scale;
+            height = width*ratio;
+            var centerx = (endx + startx)/2;
+            var centery = (endy + starty)/2;
+            startx = centerx - width/2;
+            endx = centerx + width/2;
+            starty = centery - height/2;
+            endy = centery + height/2;
+            streamplot(startx, starty, endx, endy, width/10, width/10);
+        });
+    </script>
+</body>

@@ -52,6 +52,21 @@ var PlottingCanvas = function(canvas_id, min_x, min_y, max_x, max_y) {
 		let t = this._transform(x, y);
 		this._ctx.fillRect(t.x, t.y, 20, 20)
 	};
+	this.clear = function() {
+		this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+	}
+
+	this.drawArrow = function(ctx, curx, cury, dx, dy) {
+        ctx.beginPath();
+        let t = this._transform(curx, cury);
+        curx = t.x;
+        cury = t.y;
+        this._ctx.moveTo(curx, cury);
+        this._ctx.lineTo(curx-dx*0.5-dy*0.1, cury-dy*0.5+dx*0.1);
+        this._ctx.lineTo(curx-dx*0.5+dy*0.1, cury-dy*0.5-dx*0.1);
+        this._ctx.closePath();
+        this._ctx.fill();
+    }
 };
 
 var meshgrid = function(x_arr, y_arr) {
