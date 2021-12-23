@@ -50,9 +50,19 @@ function ODESystem2d(dot_x, dot_y) {
         return [this._f_comp(x, y), this._g_comp(x, y)];
     };
 
-    this.equilibrium_points = function() {
-        return []; // the function is disabled because nerdamer.solveEquations gives strange results
-        //nerdamer.set('SOLUTIONS_AS_OBJECT', true);
-        //return nerdamer.solveEquations([this._f, this._g]);
+    this.equilibrium_point = function() {
+        threshold = 1e-6;
+        try {
+            nerdamer.set('SOLUTIONS_AS_OBJECT', true);
+            var solution = nerdamer.solveEquations([this._f.toString(), this._g.toString()]);
+            // if (this._f.evaluate({x: solution.x, y: solution.y}).eq("0") && this._g.evaluate({x: solution.x, y: solution.y}).eq("0")) {
+            if (nerdamer.abs(this._f.evaluate({x: solution.x, y: solution.y})).lt(threshold) && nerdamer.abs(this._g.evaluate({x: solution.x, y: solution.y})).lt(threshold)) {
+                return solution;
+            } else {
+                return null;
+            }
+        } catch (err) {
+            return null;
+        }
     };
 }
