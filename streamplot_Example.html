@@ -37,12 +37,12 @@
             ctx.fill();
         }
 
-        function streamplot(canvasName="canvas", f=circle, color="RoyalBlue", startx=-3, starty=-1.7, endx=3, endy=1.7, stepx=0.5, stepy=0.5, iter_steps=50, arrowSize=0.1, lr=0.05) {
+        function streamplot(startx=-3, starty=-1.7, endx=3, endy=1.7, stepx=0.5, stepy=0.5, canvasName="canvas", f=circle, color="RoyalBlue", iter_steps=1000, arrowSize=30, lr=0.001) {
             var ctx = new PlottingCanvas(canvasName, startx, starty, endx, endy);
             ctx.clear();
             ctx.set_color(color);
-            for (var x = startx-startx%stepx; x < endx; x += stepx) {
-                for (var y = starty-starty%stepy; y < endy; y += stepy) {
+            for (var x = startx-startx%stepx-stepx; x < endx+stepx; x += stepx) {
+                for (var y = starty-starty%stepy-stepy; y < endy+stepy; y += stepy) {
                     ctx.beginPath();
                     curx = x;
                     cury = y;
@@ -59,7 +59,7 @@
                     var l = Math.sqrt(dx*dx + dy*dy);
                     dx = arrowSize*dx/l;
                     dy = arrowSize*dy/l;
-                    drawArrow(ctx, curx, cury, dx, dy);
+                    ctx.drawArrow(ctx, curx, cury, dx, -dy);
                 }
             }
         }
@@ -82,7 +82,7 @@
                 endx -= dx;
                 starty += dy;
                 endy += dy;
-                streamplot("canvas", circle, "RoyalBlue", startx, starty, endx, endy);
+                streamplot(startx, starty, endx, endy, (endx-startx)/10, (endx-startx)/10);
                 mx = e.offsetX;
                 my = e.offsetY;
             }
@@ -90,6 +90,23 @@
 
         window.addEventListener('mouseup', e => {
             redraw = false;
+        });
+
+        canvas.addEventListener('wheel', e => {
+            var width = endx - startx;
+            var height = endy - starty;
+            var ratio = height/width;
+            var scale = width/canvas.width;
+            scale *= 1+e.deltaY*0.0005;
+            width = canvas.width*scale;
+            height = width*ratio;
+            var centerx = (endx + startx)/2;
+            var centery = (endy + starty)/2;
+            startx = centerx - width/2;
+            endx = centerx + width/2;
+            starty = centery - height/2;
+            endy = centery + height/2;
+            streamplot(startx, starty, endx, endy, width/10, width/10);
         });
     </script>
 </body>
