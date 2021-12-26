@@ -3,28 +3,27 @@
     <meta charset="UTF-8">
     <title>StreamPlot Test</title>
     <script src="./plotting_canvas.js"></script>
+    <script src="./odex_wrapper.js"></script>
 </head>
 <body>
-    <button onclick="">Calculate</button>
+    <button onclick="streamplotobj.switchMode()">Switch Mode</button>
     <br/>
-    Answer: 
+    Plot: 
     <p id="answer"></p>
     <canvas id="canvas" width="1920" height="1080"></canvas>
     <script type="text/javascript">
 
         function circle(x, y) {
-            // x = x*0.005;
-            // y = y*0.005;
             //console.log(0.5 * x + y - 0.3 * x * (x*x + y*y));
-            // return [
-            //     0.5 * x + y - 0.3 * x * (x*x + y*y),
-            //     -x + 0.5 * y - 0.3 * y * (x*x + y*y)
-            // ];
-            return [x - x*y, x*y - y];
+            return [
+                0.5 * x + y - 0.3 * x * (x*x + y*y),
+                -x + 0.5 * y - 0.3 * y * (x*x + y*y)
+            ];
+            //return [x - x*y, x*y - y];
             //return [-y, x];
         }
 
-        function streamplotClass(startx=-3, starty=-1.7, endx=3, endy=1.7, stepx=0.5, stepy=0.5, canvasName="canvas", f=circle, color="RoyalBlue", iter_steps=1000, arrowSize=30, lr=0.001, zoomstep=2, trajectoryColor="#edcb42") {
+        function streamplotClass(startx=-3, starty=-1.7, endx=3, endy=1.7, stepx=0.5, stepy=0.5, canvasName="canvas", f=circle, color="RoyalBlue", iter_steps=1000, arrowSize=30, lr=0.001, zoomstep=2, trajectoryColor="#edcb42", startTime = 0, endTime=1000) {
             this.startx = startx;
             this.starty = starty;
             this.endx = endx;
@@ -40,10 +39,18 @@
             this.canvas = this.ctx._canvas;
             this.mx=0;
             this.my=0;
-            this.redraw=false;
+            this.redraw = false;
             this.zoom_step = zoomstep;
-            this.trajectoryPoints = []
+            this.trajectoryPoints = [];
             this.trajectoryColor = trajectoryColor;
+            this.mode = true;
+            this.solver = false;
+            this.startTime = startTime;
+            this.endTime = endTime;
+
+            this.callback = function(n, x0, x1, X) {
+                this.trajectoryPoints.push({x:X[0], y:X[1]});
+            }
             
             this.setColor = function (color) {
                 this.color = color;
@@ -78,6 +85,8 @@
 
             this.trajectoryPlot = function () {
                 var start = true;
+                this.ctx.set_color(this.trajectoryColor);
+                this.ctx._ctx.lineWidth = 3;
                 this.ctx.beginPath();
                 for (i in this.trajectoryPoints) {
                     point = this.trajectoryPoints[i];
@@ -85,10 +94,12 @@
                         start = false;
                         this.ctx.moveTo(point.x, point.y);
                     } else {
-                        this.ctx.lineTo(curx, cury);
+                        this.ctx.lineTo(point.x, point.y);
                     }
                 }
                 this.ctx.stroke();
+                this.ctx.set_color(this.color);
+                this.ctx._ctx.lineWidth = 1;
             }
 
             this.draw = function () {
@@ -97,10 +108,27 @@
                 this.trajectoryPlot()
             }
 
+            this.switchMode = function() {
+                this.mode = !this.mode;
+            }
+
             this.canvas.addEventListener('mousedown', e => {
                 mx = e.offsetX;
                 my = e.offsetY;
-                this.redraw = true;
+                if (this.mode) {
+                    this.redraw = true;
+                } else {
+                    if (this.solver === false) {
+                        this.solver = new odex.Solver(2);
+                        this.solver.maxStepSize = this.lr;
+                        this.solver.maxSteps = 30000;
+                    }
+                    this.trajectoryPoints = [];
+                    var posx = (mx/this.canvas.width)*(this.endx-this.startx)+this.startx;
+                    var posy = (1-my/this.canvas.height)*(this.endy-this.starty)+this.starty;
+                    this.solver.solve(function(t, x) {return this.f(x[0], x[1])}, this.startTime, [posx, posy], this.endTime, this.callback);
+                    this.draw();
+                }
             });
 
             this.canvas.addEventListener('mousemove', e => {
@@ -151,6 +179,7 @@
                 this.ctx.update(this.startx, this.starty, this.endx, this.endy);
                 this.draw();
             });
+            return this;
         }
 
     streamplotobj = streamplotClass();
