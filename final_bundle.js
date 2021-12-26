@@ -348,12 +348,14 @@ streamplotjs.Streamplot = function(f, startx=-3, starty=-1.7, endx=3, endy=1.7, 
             if ((point.x < this.startx) || (point.x > this.endx) || (point.y < this.starty) || (point.y > this.endy)) {
                 continue;
             }
-            var new_color = null;
+            /* var new_color = null;
             if (cur_color_ind < this.palette.length) {
                 new_color = this.palette[cur_color_ind];
             } else {
                 new_color = "#123456";
-            }
+            } */
+            var new_color = "hsl(".concat(Math.round(360*(point.y-this.starty)/(this.endy-this.starty)).toString()).concat(", 100%, ").concat(Math.round(100*(point.x-this.startx)/(this.endx-this.startx)).toString()).concat("%)");
+            //console.log(new_color);
             cur_color_ind++;
             this.setColor(new_color);
             this.ctx.addDot(point.x, point.y);
