@@ -376,22 +376,26 @@ streamplotjs.Streamplot = function(f, startx=-3, starty=-1.7, endx=3, endy=1.7, 
         this.mode = !this.mode;
     }
 
+    this.addLongTrajectory = function(posx, posy) {
+        if (this.solver === false) {
+            this.solver = new odex.Solver(2);
+            this.solver.maxStepSize = this.lr;
+            this.solver.maxSteps = 30000;
+        }
+        this.trajectoryPoints = [];
+        this.solver.solve((t, x) => {return this.f.right_part(x[0], x[1])}, this.startTime, [posx, posy], this.endTime, (n, x0, x1, X) => { this.trajectoryPoints.push({x:X[0], y:X[1]}) });
+        this.draw();
+    };
+
     this.canvas.addEventListener('mousedown', e => {
         this.mx = e.offsetX;
         this.my = e.offsetY;
         if (this.mode) {
             this.redraw = true;
         } else {
-            if (this.solver === false) {
-                this.solver = new odex.Solver(2);
-                this.solver.maxStepSize = this.lr;
-                this.solver.maxSteps = 30000;
-            }
-            this.trajectoryPoints = [];
             var posx = (this.mx/this.canvas.width)*(this.endx-this.startx)+this.startx;
             var posy = (1-this.my/this.canvas.height)*(this.endy-this.starty)+this.starty;
-            this.solver.solve((t, x) => {return this.f.right_part(x[0], x[1])}, this.startTime, [posx, posy], this.endTime, (n, x0, x1, X) => { this.trajectoryPoints.push({x:X[0], y:X[1]}) });
-            this.draw();
+            this.addLongTrajectory(posx, posy);
         }
     });
 
