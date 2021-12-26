@@ -1,15 +1,15 @@
 var streamplotjs = {};
 
 streamplotjs._load_odex = function() {
-	var exports = {};
-	function onLoad() {
-		eval(this.responseText);
-	};
-	var oReq = new XMLHttpRequest();
-	oReq.addEventListener("load", onLoad);
-	oReq.open("GET", "https://raw.githubusercontent.com/littleredcomputer/odex-js/master/src/odex.js");
-	oReq.send();
-	return exports;
+    var exports = {};
+    function onLoad() {
+        eval(this.responseText);
+    };
+    var oReq = new XMLHttpRequest();
+    oReq.addEventListener("load", onLoad);
+    oReq.open("GET", "https://raw.githubusercontent.com/littleredcomputer/odex-js/master/src/odex.js");
+    oReq.send();
+    return exports;
 }
 
 var odex = streamplotjs._load_odex();
@@ -284,6 +284,7 @@ streamplotjs.Streamplot = function(f, startx=-3, starty=-1.7, endx=3, endy=1.7, 
     this.root_search_discretization_x = root_search_discretization_x;
     this.root_search_discretization_y = root_search_discretization_y;
     this.palette = palette;
+    this.equilibrium_points_output = null;
     
     this.setColor = function (color) {
         this.color = color;
@@ -335,22 +336,40 @@ streamplotjs.Streamplot = function(f, startx=-3, starty=-1.7, endx=3, endy=1.7, 
         this.ctx._ctx.lineWidth = 1;
     }
 
+    this.equlibriumPlot = function() {
+        if (this.equilibrium_points_output != null) {
+            document.getElementById(this.equilibrium_points_output).innerHTML = "";
+        }
+        var last_color = this.color;
+        var equilibrium_points = this.f.equilibrium_points(streamplotjs.linspace(this.startx, this.endx, this.root_search_discretization_x), streamplotjs.linspace(this.starty, this.endy, this.root_search_discretization_y));
+        for (var equilibrium_point_ind = 0; equilibrium_point_ind < equilibrium_points.length; equilibrium_point_ind++) {
+            var point = equilibrium_points[equilibrium_point_ind];
+            if ((point.x < this.startx) || (point.x > this.endx) || (point.y < this.starty) || (point.y > this.endy)) {
+                continue;
+            }
+            var new_color = null;
+            if (equilibrium_point_ind < this.palette.length) {
+                new_color = this.palette[equilibrium_point_ind];
+            } else {
+                new_color = "#123456";
+            }
+            this.setColor(new_color);
+            this.ctx.addDot(point.x, point.y);
+            if (this.equilibrium_points_output != null) {
+                var span = document.getElementById(this.equilibrium_points_output).appendChild(document.createElement("span"));
+                span.setAttribute("style", "margin-top: 0; color:".concat(new_color));
+                span.textContent = this.f.focus_type(point.x, point.y);
+                document.getElementById(this.equilibrium_points_output).appendChild(document.createElement("br"));
+            }
+        };
+        this.setColor(last_color);
+    };
+
     this.draw = function () {
         this.ctx.clear();
         this.streamplot();
         this.trajectoryPlot();
-        var last_color = this.color;
-        var equilibrium_points = this.f.equilibrium_points(streamplotjs.linspace(this.startx, this.endx, this.root_search_discretization_x), streamplotjs.linspace(this.starty, this.endy, this.root_search_discretization_y));
-        for (var equilibrium_point_ind = 0; equilibrium_point_ind < equilibrium_points.length; equilibrium_point_ind++) {
-        	var point = equilibrium_points[equilibrium_point_ind];
-        	if (equilibrium_point_ind < this.palette.length) {
-        		this.setColor(this.palette[equilibrium_point_ind]);
-        	} else {
-        		this.setColor("#123456");
-        	}
-            this.ctx.addDot(point.x, point.y);
-        };
-        this.setColor(last_color);
+        this.equlibriumPlot();
     }
 
     this.switchMode = function() {
@@ -424,5 +443,13 @@ streamplotjs.Streamplot = function(f, startx=-3, starty=-1.7, endx=3, endy=1.7, 
         this.ctx.update(this.startx, this.starty, this.endx, this.endy);
         this.draw();
     });
+
+    this.set_equilibrium_points_output = function(div_id) {
+        var old_equilibrium_points_output = this.equilibrium_points_output;
+        this.equilibrium_points_output = div_id;
+        if (old_equilibrium_points_output != null) {
+            document.getElementById(old_equilibrium_points_output).innerHTML = "";
+        }
+    };
 }
 

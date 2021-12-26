@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <title>Nerdamer Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/nerdamer@latest/nerdamer.core.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/nerdamer@latest/Algebra.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/nerdamer@latest/Calculus.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/nerdamer@latest/Solve.js"></script>
+    <script src="./final_bundle.js"></script>
+</head>
+<body>
+    <canvas id="canvas" width="800" height="800"></canvas>
+    <div id="legend" style="margin-left: 820px; position:fixed; top:0;">
+        <p>test</p>
+    </div>
+    <script type="text/javascript">
+        var lotka = new streamplotjs.ODESystem2d("x - x*y", "x*y - y");
+        var oscillator = new streamplotjs.ODESystem2d("y", "-sin(x)");
+        var ahopf = new streamplotjs.ODESystem2d("0.5 * x + y - 0.3 * x * (x*x + y*y)", "-x + 0.5 * y - 0.3 * y * (x*x + y*y)");
+
+        var streamplotobj = new streamplotjs.Streamplot(f=oscillator);
+        streamplotobj.set_equilibrium_points_output("legend");
+        streamplotobj.draw();
+    </script>
+    <button onclick="streamplotobj.switchMode()">Switch Mode</button>
+</body>
