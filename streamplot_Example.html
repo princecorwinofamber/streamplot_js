@@ -5,7 +5,7 @@
     <script src="./plotting_canvas.js"></script>
 </head>
 <body>
-    <button onclick="streamplot()">Calculate</button>
+    <button onclick="">Calculate</button>
     <br/>
     Answer: 
     <p id="answer"></p>
@@ -24,7 +24,7 @@
             //return [-y, x];
         }
 
-        function streamplotClass(startx=-3, starty=-1.7, endx=3, endy=1.7, stepx=0.5, stepy=0.5, canvasName="canvas", f=circle, color="RoyalBlue", iter_steps=1000, arrowSize=30, lr=0.001, zoomstep=2) {
+        function streamplotClass(startx=-3, starty=-1.7, endx=3, endy=1.7, stepx=0.5, stepy=0.5, canvasName="canvas", f=circle, color="RoyalBlue", iter_steps=1000, arrowSize=30, lr=0.001, zoomstep=2, trajectoryColor="#edcb42") {
             this.startx = startx;
             this.starty = starty;
             this.endx = endx;
@@ -42,6 +42,8 @@
             this.my=0;
             this.redraw=false;
             this.zoom_step = zoomstep;
+            this.trajectoryPoints = []
+            this.trajectoryColor = trajectoryColor;
             
             this.setColor = function (color) {
                 this.color = color;
@@ -50,8 +52,7 @@
 
             this.setColor(color);
 
-            this.draw = function () {
-                this.ctx.clear();
+            this.streamplot = function () {
                 for (var x = this.startx-this.startx%this.stepx-this.stepx; x < this.endx+this.stepx; x += this.stepx) {
                     for (var y = this.starty-this.starty%this.stepy-this.stepy; y < this.endy+this.stepy; y += this.stepy) {
                         this.ctx.beginPath();
@@ -73,6 +74,27 @@
                         this.ctx.drawArrow(curx, cury, dx, -dy);
                     }
                 }
+            }
+
+            this.trajectoryPlot = function () {
+                var start = true;
+                this.ctx.beginPath();
+                for (i in this.trajectoryPoints) {
+                    point = this.trajectoryPoints[i];
+                    if (start) {
+                        start = false;
+                        this.ctx.moveTo(point.x, point.y);
+                    } else {
+                        this.ctx.lineTo(curx, cury);
+                    }
+                }
+                this.ctx.stroke();
+            }
+
+            this.draw = function () {
+                this.ctx.clear();
+                this.streamplot();
+                this.trajectoryPlot()
             }
 
             this.canvas.addEventListener('mousedown', e => {
