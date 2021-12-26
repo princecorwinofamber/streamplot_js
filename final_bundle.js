@@ -47,7 +47,7 @@ streamplotjs.ODESystem2d = function(dot_x, dot_y, root_threshold=1e-3, newton_ma
     this.linearized = function(at_x, at_y) {
         var lin_f = this._jacobi_tl.evaluate({ x: at_x, y: at_y }).multiply(nerdamer("x").subtract(nerdamer(at_x))).add(this._jacobi_tr.evaluate({ x: at_x, y: at_y }).multiply(nerdamer("y").subtract(nerdamer(at_y))));
         var lin_g = this._jacobi_bl.evaluate({ x: at_x, y: at_y }).multiply(nerdamer("x").subtract(nerdamer(at_x))).add(this._jacobi_br.evaluate({ x: at_x, y: at_y }).multiply(nerdamer("y").subtract(nerdamer(at_y))));
-        return new ODESystem2d(lin_f, lin_g);
+        return new streamplotjs.ODESystem2d(lin_f, lin_g);
     };
 
     this.focus_type = function(at_x, at_y) {
@@ -122,11 +122,6 @@ streamplotjs.ODESystem2d = function(dot_x, dot_y, root_threshold=1e-3, newton_ma
     this.equilibrium_points = function(x_arr, y_arr) {
         var p_list = [];
         var res;
-        /* var res = this._equilibrium_point();
-        if (res != null) {
-            p_list.push({x: res[0], y: res[1]});
-        } */
-        //console.log(p_list[0]);
         for (var i = 0; i < x_arr.length; i++) {
             for (var j = 0; j < x_arr.length; j++) {
                 res = this._newtons_method(x_arr[i], y_arr[j]);
@@ -346,7 +341,6 @@ streamplotjs.Streamplot = function(f, startx=-3, starty=-1.7, endx=3, endy=1.7, 
         this.trajectoryPlot();
         var last_color = this.color;
         var equilibrium_points = this.f.equilibrium_points(streamplotjs.linspace(this.startx, this.endx, this.root_search_discretization_x), streamplotjs.linspace(this.starty, this.endy, this.root_search_discretization_y));
-        console.log(equilibrium_points);
         for (var equilibrium_point_ind = 0; equilibrium_point_ind < equilibrium_points.length; equilibrium_point_ind++) {
         	var point = equilibrium_points[equilibrium_point_ind];
         	if (equilibrium_point_ind < this.palette.length) {
