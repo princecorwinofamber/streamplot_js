@@ -115,8 +115,15 @@
                 this.endx = centerx + width/2;
                 this.starty = centery - height/2;
                 this.endy = centery + height/2;
-                this.stepx = width/10;
-                this.stepy = width/10;
+                var zoom_step = 2;
+                while (this.stepx * zoom_step < width/10) {
+                    this.stepx *= zoom_step;
+                    this.stepy *= zoom_step;
+                }
+                while (this.stepx > width*zoom_step/10) {
+                    this.stepx /= zoom_step;
+                    this.stepy /= zoom_step;
+                }
                 this.ctx.update(this.startx, this.starty, this.endx, this.endy);
                 this.draw();
             });
