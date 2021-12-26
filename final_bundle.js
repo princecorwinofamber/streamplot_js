@@ -101,7 +101,7 @@ streamplotjs.ODESystem2d = function(dot_x, dot_y, root_threshold=1e-3, newton_ma
         var y = y0;
         var iter = 0;
         var res;
-        while(Math.abs(this._f_comp(x, y)) > this._root_threshold && Math.abs(this._g_comp(x, y)) > this._root_threshold && iter < this._newton_max_steps) {
+        while((Math.abs(this._f_comp(x, y)) > this._root_threshold || Math.abs(this._g_comp(x, y)) > this._root_threshold) && iter < this._newton_max_steps) {
             res = streamplotjs._kramer2x2(this._jacobi_tl_comp(x, y), this._jacobi_tr_comp(x, y), this._jacobi_bl_comp(x, y), this._jacobi_br_comp(x, y),
                 -this._f_comp(x, y) + this._jacobi_tl_comp(x, y) * x + this._jacobi_tr_comp(x, y) * y,
                 -this._g_comp(x, y) + this._jacobi_bl_comp(x, y) * x + this._jacobi_br_comp(x, y) * y);
@@ -346,6 +346,7 @@ streamplotjs.Streamplot = function(f, startx=-3, starty=-1.7, endx=3, endy=1.7, 
         this.trajectoryPlot();
         var last_color = this.color;
         var equilibrium_points = this.f.equilibrium_points(streamplotjs.linspace(this.startx, this.endx, this.root_search_discretization_x), streamplotjs.linspace(this.starty, this.endy, this.root_search_discretization_y));
+        console.log(equilibrium_points);
         for (var equilibrium_point_ind = 0; equilibrium_point_ind < equilibrium_points.length; equilibrium_point_ind++) {
         	var point = equilibrium_points[equilibrium_point_ind];
         	if (equilibrium_point_ind < this.palette.length) {
