@@ -371,7 +371,7 @@ streamplotjs.Streamplot = function(f, startx=-3, starty=-1.7, endx=3, endy=1.7, 
             this.trajectoryPoints = [];
             var posx = (this.mx/this.canvas.width)*(this.endx-this.startx)+this.startx;
             var posy = (1-this.my/this.canvas.height)*(this.endy-this.starty)+this.starty;
-            this.solver.solve(function(t, x) {return this.f.right_part(x[0], x[1])}, this.startTime, [posx, posy], this.endTime, (n, x0, x1, X) => { this.trajectoryPoints.push({x:X[0], y:X[1]}) });
+            this.solver.solve((t, x) => {return this.f.right_part(x[0], x[1])}, this.startTime, [posx, posy], this.endTime, (n, x0, x1, X) => { this.trajectoryPoints.push({x:X[0], y:X[1]}) });
             this.draw();
         }
     });
