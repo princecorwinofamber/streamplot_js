@@ -1,4 +1,6 @@
-function _load_odex() {
+var streamplotjs = {};
+
+streamplotjs._load_odex = function() {
 	var exports = {};
 	function onLoad() {
 		eval(this.responseText);
@@ -10,21 +12,21 @@ function _load_odex() {
 	return exports;
 }
 
-var odex = _load_odex();
+var odex = streamplotjs._load_odex();
 
-function _det2x2(a11, a12, a21, a22) {
+streamplotjs._det2x2 = function(a11, a12, a21, a22) {
     return a11 * a22 - a12 * a21;
 }
 
-function _kramer2x2(a11, a12, a21, a22, b1, b2) {
-    var mdet = _det2x2(a11, a12, a21, a22);
+streamplotjs._kramer2x2 = function(a11, a12, a21, a22, b1, b2) {
+    var mdet = streamplotjs._det2x2(a11, a12, a21, a22);
     if (Math.abs(mdet) < 1e-4) {
         return null;
     }
-    return [_det2x2(b1, a12, b2, a22) / mdet, _det2x2(a11, b1, a21, b2) / mdet];
+    return [streamplotjs._det2x2(b1, a12, b2, a22) / mdet, streamplotjs._det2x2(a11, b1, a21, b2) / mdet];
 }
 
-function ODESystem2d(dot_x, dot_y, root_threshold=1e-3, newton_max_steps=10) {
+streamplotjs.ODESystem2d = function(dot_x, dot_y, root_threshold=1e-3, newton_max_steps=10) {
     // \dot x = f(x, y)
     // \dot y = g(x, y)
     this._f = nerdamer(dot_x);
@@ -100,7 +102,7 @@ function ODESystem2d(dot_x, dot_y, root_threshold=1e-3, newton_max_steps=10) {
         var iter = 0;
         var res;
         while(Math.abs(this._f_comp(x, y)) > this._root_threshold && Math.abs(this._g_comp(x, y)) > this._root_threshold && iter < this._newton_max_steps) {
-            res = _kramer2x2(this._jacobi_tl_comp(x, y), this._jacobi_tr_comp(x, y), this._jacobi_bl_comp(x, y), this._jacobi_br_comp(x, y),
+            res = streamplotjs._kramer2x2(this._jacobi_tl_comp(x, y), this._jacobi_tr_comp(x, y), this._jacobi_bl_comp(x, y), this._jacobi_br_comp(x, y),
                 -this._f_comp(x, y) + this._jacobi_tl_comp(x, y) * x + this._jacobi_tr_comp(x, y) * y,
                 -this._g_comp(x, y) + this._jacobi_bl_comp(x, y) * x + this._jacobi_br_comp(x, y) * y);
             if (res == null) {
@@ -146,7 +148,7 @@ function ODESystem2d(dot_x, dot_y, root_threshold=1e-3, newton_max_steps=10) {
     };
 }
 
-var PlottingCanvas = function(canvas_id, min_x, min_y, max_x, max_y) {
+streamplotjs.PlottingCanvas = function(canvas_id, min_x, min_y, max_x, max_y) {
     this._canvas_id = canvas_id;
     this.min_x = min_x;
     this.min_y = min_y;
@@ -234,7 +236,7 @@ var PlottingCanvas = function(canvas_id, min_x, min_y, max_x, max_y) {
     }
 };
 
-var meshgrid = function(x_arr, y_arr) {
+streamplotjs.meshgrid = function(x_arr, y_arr) {
     var x_len = x_arr.length;
     var y_len = y_arr.length;
     X = Array(y_len).fill([...x_arr]);
@@ -246,7 +248,7 @@ var meshgrid = function(x_arr, y_arr) {
     return [X, Y];
 };
 
-var linspace = function(start, stop, num) {
+streamplotjs.linspace = function(start, stop, num) {
     var step = (stop - start) / (num - 1);
     var lin = Array(num);
     var cur = start;
@@ -258,9 +260,9 @@ var linspace = function(start, stop, num) {
     return lin;
 };
 
-var default_palette = ["#40db40", "#db8040", "#cc40db", "#2b2b28", "#24c793", "#909196", "#150999", "#7b7a80", "#a10306", "#7e9635"];
+streamplotjs.default_palette = ["#40db40", "#db8040", "#cc40db", "#2b2b28", "#24c793", "#909196", "#150999", "#7b7a80", "#a10306", "#7e9635"];
 
-var Streamplot = function(f, startx=-3, starty=-1.7, endx=3, endy=1.7, stepx=0.5, stepy=0.5, canvasName="canvas", color="RoyalBlue", iter_steps=1000, arrowSize=30, lr=0.001, zoomstep=2, trajectoryColor="#edcb42", startTime = 0, endTime=1000, root_search_discretization_x=25, root_search_discretization_y=3, palette=default_palette) {
+streamplotjs.Streamplot = function(f, startx=-3, starty=-1.7, endx=3, endy=1.7, stepx=0.5, stepy=0.5, canvasName="canvas", color="RoyalBlue", iter_steps=1000, arrowSize=30, lr=0.001, zoomstep=2, trajectoryColor="#edcb42", startTime = 0, endTime=1000, root_search_discretization_x=25, root_search_discretization_y=3, palette=streamplotjs.default_palette) {
     this.startx = startx;
     this.starty = starty;
     this.endx = endx;
@@ -272,7 +274,7 @@ var Streamplot = function(f, startx=-3, starty=-1.7, endx=3, endy=1.7, stepx=0.5
     this.iter_steps = iter_steps;
     this.arrowSize = arrowSize;
     this.lr = lr;
-    this.ctx = new PlottingCanvas(canvasName, startx, starty, endx, endy);
+    this.ctx = new streamplotjs.PlottingCanvas(canvasName, startx, starty, endx, endy);
     this.canvas = this.ctx._canvas;
     this.mx=0;
     this.my=0;
@@ -343,7 +345,7 @@ var Streamplot = function(f, startx=-3, starty=-1.7, endx=3, endy=1.7, stepx=0.5
         this.streamplot();
         this.trajectoryPlot();
         var last_color = this.color;
-        var equilibrium_points = this.f.equilibrium_points(linspace(this.startx, this.endx, this.root_search_discretization_x), linspace(this.starty, this.endy, this.root_search_discretization_y));
+        var equilibrium_points = this.f.equilibrium_points(streamplotjs.linspace(this.startx, this.endx, this.root_search_discretization_x), streamplotjs.linspace(this.starty, this.endy, this.root_search_discretization_y));
         for (var equilibrium_point_ind = 0; equilibrium_point_ind < equilibrium_points.length; equilibrium_point_ind++) {
         	var point = equilibrium_points[equilibrium_point_ind];
         	if (equilibrium_point_ind < this.palette.length) {
