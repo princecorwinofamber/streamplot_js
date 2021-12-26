@@ -341,6 +341,7 @@ streamplotjs.Streamplot = function(f, startx=-3, starty=-1.7, endx=3, endy=1.7, 
             document.getElementById(this.equilibrium_points_output).innerHTML = "";
         }
         var last_color = this.color;
+        var cur_color_ind = 0;
         var equilibrium_points = this.f.equilibrium_points(streamplotjs.linspace(this.startx, this.endx, this.root_search_discretization_x), streamplotjs.linspace(this.starty, this.endy, this.root_search_discretization_y));
         for (var equilibrium_point_ind = 0; equilibrium_point_ind < equilibrium_points.length; equilibrium_point_ind++) {
             var point = equilibrium_points[equilibrium_point_ind];
@@ -348,11 +349,12 @@ streamplotjs.Streamplot = function(f, startx=-3, starty=-1.7, endx=3, endy=1.7, 
                 continue;
             }
             var new_color = null;
-            if (equilibrium_point_ind < this.palette.length) {
-                new_color = this.palette[equilibrium_point_ind];
+            if (cur_color_ind < this.palette.length) {
+                new_color = this.palette[cur_color_ind];
             } else {
                 new_color = "#123456";
             }
+            cur_color_ind++;
             this.setColor(new_color);
             this.ctx.addDot(point.x, point.y);
             if (this.equilibrium_points_output != null) {
