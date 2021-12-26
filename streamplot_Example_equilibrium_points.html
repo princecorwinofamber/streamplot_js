@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <title>StreamPlot Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/nerdamer@latest/nerdamer.core.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/nerdamer@latest/Algebra.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/nerdamer@latest/Calculus.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/nerdamer@latest/Solve.js"></script>
+    <script src="./plotting_canvas.js"></script>
+    <script src="./linearize.js"></script>
+</head>
+<body>
+    <button onclick="">Calculate</button>
+    <br/>
+    Answer: 
+    <p id="answer"></p>
+    <canvas id="canvas" width="800" height="800"></canvas>
+    <script type="text/javascript">
+
+        /* function circle(x, y) {
+            // x = x*0.005;
+            // y = y*0.005;
+            //console.log(0.5 * x + y - 0.3 * x * (x*x + y*y));
+            // return [
+            //     0.5 * x + y - 0.3 * x * (x*x + y*y),
+            //     -x + 0.5 * y - 0.3 * y * (x*x + y*y)
+            // ];
+            return [x - x*y, x*y - y];
+            //return [-y, x];
+        } */
+
+        var lotka = new ODESystem2d("x - x*y", "x*y - y");
+        var oscillator = new ODESystem2d("y", "-sin(x)");
+        var ahopf = new ODESystem2d("0.5 * x + y - 0.3 * x * (x*x + y*y)", "-x + 0.5 * y - 0.3 * y * (x*x + y*y)");
+
+        function streamplotClass(startx=-3, starty=-1.7, endx=3, endy=1.7, stepx=0.5, stepy=0.5, canvasName="canvas", f=oscillator, color="RoyalBlue", iter_steps=1000, arrowSize=30, lr=0.001, zoomstep=2, trajectoryColor="#edcb42", root_search_discretization_x=25, root_search_discretization_y=3) {
+            this.startx = startx;
+            this.starty = starty;
+            this.endx = endx;
+            this.endy = endy;
+            this.stepx = stepx;
+            this.stepy = stepy;
+            this.canvasName = canvasName;
+            this.f = f;
+            this.iter_steps = iter_steps;
+            this.arrowSize = arrowSize;
+            this.lr = lr;
+            this.ctx = new PlottingCanvas(canvasName, startx, starty, endx, endy);
+            this.canvas = this.ctx._canvas;
+            this.mx=0;
+            this.my=0;
+            this.redraw=false;
+            this.zoom_step = zoomstep;
+            this.trajectoryPoints = []
+            this.trajectoryColor = trajectoryColor;
+            this.root_search_discretization_x = root_search_discretization_x;
+            this.root_search_discretization_y = root_search_discretization_y;
+            
+            this.setColor = function (color) {
+                this.color = color;
+                this.ctx.set_color(this.color);
+            }
+
+            this.setColor(color);
+
+            this.streamplot = function () {
+                for (var x = this.startx-this.startx%this.stepx-this.stepx; x < this.endx+this.stepx; x += this.stepx) {
+                    for (var y = this.starty-this.starty%this.stepy-this.stepy; y < this.endy+this.stepy; y += this.stepy) {
+                        this.ctx.beginPath();
+                        curx = x;
+                        cury = y;
+                        this.ctx.moveTo(curx, cury);
+                        for (var i = 0; i < iter_steps; i++) {
+                            aaa = this.f.right_part(curx, cury);
+                            curx += aaa[0]*lr;
+                            cury += aaa[1]*lr;
+                            this.ctx.lineTo(curx, cury);
+                        }
+                        this.ctx.stroke();
+                        var dx = aaa[0]*lr;
+                        var dy = aaa[1]*lr;
+                        var l = Math.sqrt(dx*dx + dy*dy);
+                        dx = arrowSize*dx/l;
+                        dy = arrowSize*dy/l;
+                        this.ctx.drawArrow(curx, cury, dx, -dy);
+                    }
+                }
+            }
+
+            this.trajectoryPlot = function () {
+                var start = true;
+                this.ctx.beginPath();
+                for (i in this.trajectoryPoints) {
+                    point = this.trajectoryPoints[i];
+                    if (start) {
+                        start = false;
+                        this.ctx.moveTo(point.x, point.y);
+                    } else {
+                        this.ctx.lineTo(curx, cury);
+                    }
+                }
+                this.ctx.stroke();
+            }
+
+            this.draw = function () {
+                this.ctx.clear();
+                this.streamplot();
+                this.trajectoryPlot();
+                this.f.equilibrium_points(linspace(this.startx, this.endx, this.root_search_discretization_x), linspace(this.starty, this.endy, this.root_search_discretization_y)).forEach(function(point) {
+                    this.ctx.addDot(point.x, point.y);
+                });
+            }
+
+            this.canvas.addEventListener('mousedown', e => {
+                mx = e.offsetX;
+                my = e.offsetY;
+                this.redraw = true;
+            });
+
+            this.canvas.addEventListener('mousemove', e => {
+                var dx = e.offsetX-mx;
+                var dy = e.offsetY-my;
+                if (this.redraw === true) {
+                    dx = (this.endx-this.startx)*dx/this.canvas.width;
+                    dy = (this.endy-this.starty)*dy/this.canvas.height;
+                    this.startx -= dx;
+                    this.endx -= dx;
+                    this.starty += dy;
+                    this.endy += dy;
+                    mx = e.offsetX;
+                    my = e.offsetY;
+                    this.ctx.update(this.startx, this.starty, this.endx, this.endy);
+                    this.draw();
+                }
+            });
+
+            window.addEventListener('mouseup', e => {
+                this.redraw = false;
+            });
+
+            this.canvas.addEventListener('wheel', e => {
+                var width = this.endx - this.startx;
+                var height = this.endy - this.starty;
+                var ratio = height/width;
+                var scale = width/this.canvas.width;
+                scale *= 1+e.deltaY*0.0005;
+                width = this.canvas.width*scale;
+                height = width*ratio;
+                var centerx = (this.endx + this.startx)/2;
+                var centery = (this.endy + this.starty)/2;
+                this.startx = centerx - width/2;
+                this.endx = centerx + width/2;
+                this.starty = centery - height/2;
+                this.endy = centery + height/2;
+
+                while (this.stepx * this.zoom_step < width/10) {
+                    this.stepx *= this.zoom_step;
+                    this.stepy *= this.zoom_step;
+                }
+                while (this.stepx > width*this.zoom_step/10) {
+                    this.stepx /= this.zoom_step;
+                    this.stepy /= this.zoom_step;
+                }
+
+                this.ctx.update(this.startx, this.starty, this.endx, this.endy);
+                this.draw();
+            });
+        }
+
+    streamplotobj = streamplotClass();
+    </script>
+</body>
