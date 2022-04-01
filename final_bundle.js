@@ -79,6 +79,10 @@ streamplotjs.ODESystem2d = function(dot_x, dot_y, root_threshold=1e-3, newton_ma
     this.right_part = function(x, y) {
         return [this._f_comp(x, y), this._g_comp(x, y)];
     };
+    
+    this.latex = function() {
+        return [this._f.latex(), this._g.latex()];
+    };
 
     this._equilibrium_point = function() {
         var threshold = this._root_threshold;
