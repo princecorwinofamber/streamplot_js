@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <title>Simple</title>
+    <script src="https://cdn.jsdelivr.net/npm/nerdamer@latest/nerdamer.core.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/nerdamer@latest/Algebra.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/nerdamer@latest/Calculus.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/nerdamer@latest/Solve.js"></script>
+    <script src="./final_bundle.js"></script>
+</head>
+<body>
+    <canvas id="canvas" width="800" height="800"></canvas>
+    <div id="legend" style="margin-left: 820px; position:fixed; top:0;">
+        <p>test</p>
+    </div>
+    <script type="text/javascript">
+        var knot = new streamplotjs.ODESystem2d("x", "1.6*y");
+        
+        var streamplotobj = new streamplotjs.Streamplot(f=knot, startTime=10);
+        streamplotobj.set_equilibrium_points_output("legend");
+        streamplotobj.draw();
+    </script>
+    <button onclick="streamplotobj.switchMode()">Switch Mode</button>
+</body>

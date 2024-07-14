@@ -216,9 +216,9 @@ streamplotjs.PlottingCanvas = function(canvas_id, min_x, min_y, max_x, max_y) {
         let t = this._transform(curx, cury);
         curx = t.x;
         cury = t.y;
-        this._ctx.moveTo(curx, cury);
-        this._ctx.lineTo(curx-dx*0.5-dy*0.1, cury-dy*0.5+dx*0.1);
-        this._ctx.lineTo(curx-dx*0.5+dy*0.1, cury-dy*0.5-dx*0.1);
+        this._ctx.moveTo(curx+dx*0.5, cury+dy*0.5);
+        this._ctx.lineTo(curx-dy*0.1, cury+dx*0.1);
+        this._ctx.lineTo(curx+dy*0.1, cury-dx*0.1);
         this._ctx.closePath();
         this._ctx.fill();
     }
